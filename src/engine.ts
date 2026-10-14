@@ -7,3 +7,11 @@ export function grade(c:Cook):'burnt'|'raw'|'soggy'|'perfect'|'good'{
  if(c.crust>=1.45)return 'burnt'; if(c.inside<1)return 'raw'; if(c.low>4||c.crust<.7)return 'soggy'; if(c.crust>=.88&&c.crust<=1.15)return 'perfect';return 'good';
 }
 export const reward=(g:ReturnType<typeof grade>,combo:number,recipe:number)=>g==='perfect'?Math.round((180+recipe*40)*(1+Math.min(combo,10)*.1)):g==='good'?120+recipe*30:g==='soggy'?40:0;
+
+// Sauce is a finishing step: it cannot make raw or burnt chicken safe to sell.
+export function assessDish(c: Cook, recipe: number, coverage: number): ReturnType<typeof grade> | 'unsauced' {
+ const doneness = grade(c);
+ if (doneness === 'raw' || doneness === 'burnt') return doneness;
+ if (recipe > 0 && coverage < 1) return 'unsauced';
+ return doneness;
+}
