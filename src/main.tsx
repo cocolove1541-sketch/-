@@ -8,6 +8,7 @@ import { CustomerPortrait, customerNames, type CustomerMood } from './Customer';
 import './style.css';
 import './kitchen.css';
 import './service.css';
+import './signboard.css';
 
 type Save = { money:number; sales:number; best:number; fryer:number; oil:number; date:string; score:number };
 type Phase = 'raw' | 'flour' | 'coated' | 'frying' | 'saucing' | 'plated' | 'done' | 'failed';
@@ -191,6 +192,13 @@ function App() {
   const customerSpeech=failureReason==='timeout'?'“너무 오래 기다렸잖아요! 배고파요!”':failureReason==='wrong-sauce'?'“제가 주문한 치킨이 아니에요!”':failureReason?'“이 치킨은 먹을 수 없잖아요!”':phase==='done'?'“잘 먹을게요! 다음에 또 올게요!”':left<=8?'“제 치킨 아직인가요? 서둘러 주세요!”':customerQuotes[recipe];
 
   return <div className="app">
+    <div className="pub-sign-area">
+      <div className="pub-sign" role="img" aria-label="JOONIL'S 치킨호프 간판">
+        <div className="pub-sign-chicken" aria-hidden="true"><Chicken progress={1}/></div>
+        <div className="pub-sign-lettering"><div className="pub-sign-name">JOONIL'S <span>치킨호프</span></div><small>CHICKEN &amp; HOF</small></div>
+        <svg className="pub-sign-mug" viewBox="0 0 64 64" aria-hidden="true"><path d="M43 23h7q10 0 10 10t-10 10h-7" fill="none" stroke="#e9bb67" strokeWidth="5"/><path d="M11 19h34v33q0 5-5 5H16q-5 0-5-5Z" fill="#edb655" stroke="#f6d994" strokeWidth="3"/><path d="M19 27v21m9-21v21m9-21v21" stroke="#ffe7ab" strokeWidth="3" strokeLinecap="round"/><path d="M9 21Q4 15 10 11q3-7 9-4 5-7 11-1 7-5 12 2 9-1 8 8-1 7-9 7H15Z" fill="#fff4d7"/></svg>
+      </div>
+    </div>
     <header>
       <a className="brand" href="#"><span className="brand-icon">♜</span><div>치킨왕<small>오늘도 튀긴다!</small></div></a>
       <span className="header-note">작은 주방, 바삭한 행복</span>

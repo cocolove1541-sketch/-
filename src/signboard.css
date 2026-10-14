@@ -1,0 +1,63 @@
+.pub-sign-area {
+  display: flex;
+  justify-content: center;
+  padding: 25px 20px 19px;
+  background: repeating-linear-gradient(90deg, #ece5d7 0 47px, #e3dac8 48px 49px);
+  border-bottom: 1px solid #d8c9b0;
+}
+.pub-sign {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 650px;
+  max-width: 100%;
+  padding: 16px 26px;
+  border: 4px solid #99734b;
+  border-radius: 14px;
+  color: #fff0bc;
+  background: repeating-linear-gradient(4deg, #553b29 0 4px, #523726 5px 7px);
+  box-shadow: inset 0 0 0 2px #e1b56b, inset 0 0 24px #2b1b1480, 0 6px 0 #b6a083, 0 10px 18px #4e352724;
+}
+.pub-sign::before,.pub-sign::after {
+  content: '';
+  position: absolute;
+  top: -26px;
+  width: 4px;
+  height: 25px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #958d7a, #d0cabb, #958d7a);
+}
+.pub-sign::before { left: 16%; }
+.pub-sign::after { right: 16%; }
+.pub-sign-lettering { text-align: center; }
+.pub-sign-name {
+  font-size: 35px;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  text-shadow: 0 2px 0 #302015, 0 0 16px #ffd27940;
+}
+.pub-sign-name span { font-size: 29px; margin-left: 7px; letter-spacing: -1px; }
+.pub-sign-lettering small { display: block; margin-top: 9px; color: #d2b385; font-size: 9px; letter-spacing: 4px; }
+.pub-sign-chicken { width: 68px; flex-shrink: 0; transform: rotate(-12deg); }
+.pub-sign-chicken .chicken-photo { filter: drop-shadow(0 4px 4px #25150b60); }
+.pub-sign-mug { width: 50px; height: 50px; flex-shrink: 0; transform: rotate(8deg); }
+@media (max-width: 740px) {
+  .pub-sign-area { padding: 19px 14px 16px; }
+  .pub-sign { padding: 13px 12px; gap: 12px; border-width: 3px; border-radius: 11px; }
+  .pub-sign::before,.pub-sign::after { top: -20px; height: 19px; width: 3px; }
+  .pub-sign-name { font-size: 24px; letter-spacing: .3px; }
+  .pub-sign-name span { font-size: 21px; margin-left: 4px; }
+  .pub-sign-lettering small { font-size: 7px; letter-spacing: 3px; margin-top: 6px; }
+  .pub-sign-chicken { width: 38px; }
+  .pub-sign-mug { display: none; }
+}
+@media (max-width: 360px) {
+  .pub-sign-name { font-size: 20px; }
+  .pub-sign-name span { font-size: 18px; }
+  .pub-sign { gap: 9px; }
+  .pub-sign-chicken { width: 32px; }
+}
