@@ -1,0 +1,69 @@
+/* All sauces stay on the counter; the customer order never hides ingredients. */
+.all-sauces { display: block; padding: 24px 28px; }
+.sauce-heading .eyebrow { font-size: 8px; color: #b57853; }
+.sauce-heading h3 { margin: 7px 0; font-size: 18px; color: #87472e; }
+.sauce-heading p { font-size: 11px; color: #a17b5a; margin: 7px 0 0; line-height: 1.8; }
+.sauce-heading b { color: #955931; }
+.sauce-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: 17px 0 22px; }
+.sauce-choice { border: 1px solid #dcc3a8; border-radius: 10px; padding: 12px 6px 10px; min-height: 98px; background: #fffaf0; display: flex; flex-direction: column; align-items: center; transition: background .18s, border-color .18s; }
+.sauce-choice[aria-pressed="true"] { background: #f8e2c8; border: 2px solid #c4874e; padding: 11px 5px 9px; }
+.sauce-choice:disabled { opacity: .62; }
+.sauce-choice strong { font-size: 12px; margin-top: 10px; }
+.sauce-choice small { font-size: 9px; margin-top: 4px; color: #a4886a; }
+.sauce-mini-bowl { display: block; width: 56px; height: 31px; border-radius: 50% 50% 42% 42%; background: radial-gradient(ellipse at 40% 25%, #ffffff66 0%, #ffffff00 38%), var(--choice-color); border: 5px solid #d3c4a9; box-shadow: 0 5px 0 #b2a182, inset 0 2px 2px #4a241955; }
+.plain-mini-plate { display: block; width: 56px; height: 31px; border-radius: 50%; background: #fffaf0; border: 4px solid #d6ccb5; box-shadow: 0 4px 0 #b5a98c; }
+.sauce-workspace { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.sauce-workspace .sauce-copy { min-width: 0; }
+.sauce-copy h4 { font-size: 13px; color: #945b3b; margin: 0 0 8px; }
+.station-serve { display: block; padding: 10px 0 0; color: #986b3a; font-size: 10px; text-decoration: underline; text-underline-offset: 3px; }
+.station-serve:disabled { opacity: .45; }
+.sauce-bowl.empty .sauce-pool { background: radial-gradient(ellipse at center, #fff9e5, #e4d5b5); box-shadow: inset 0 3px 8px #9f8f6640; }
+.sauce-bowl.empty .sauce-pool::after { border-color: #d9caac; }
+.sauce-notice { padding: 11px 13px; margin-top: 16px; border: 1px solid #dfa171; border-radius: 8px; font-size: 11px; color: #ad5935; background: #fff5dc; line-height: 1.7; }
+.sauce-lock-note { font-size: 9px; color: #a38165; margin: 12px 0 0; }
+
+/* Three cutout portraits, with a second atlas row for angry expressions. */
+.reference-customer { gap: 10px; margin: 17px 0; }
+.customer-portrait { width: 79px; height: 79px; flex-shrink: 0; position: relative; border-radius: 20px; background: #f3ecdf; }
+.customer-portrait svg { width: 100%; height: 100%; }
+.customer .customer-sprite { position: absolute; inset: 0; margin: 0; display: block; background-repeat: no-repeat; background-size: 300% 200%; }
+.customer-portrait.waiting { animation: customer-breathe 2.8s infinite ease-in-out; }
+.customer-portrait.impatient { animation: impatient-bob .9s infinite ease-in-out; background: #f6e3c8; }
+.customer-portrait.happy { animation: happy-hop .55s 3 ease-in-out; background: #eeeeda; }
+.customer-portrait.angry { animation: angry-shake .24s 5 ease-in-out; background: #f8e0d5; }
+.customer-dialogue { min-width: 0; flex: 1; }
+.customer .customer-dialogue strong { font-size: 12px; }
+.customer .customer-speech { font-size: 11px; line-height: 1.7; color: #9b7553; margin-top: 6px; }
+.customer .customer-dialogue small { display: block; font-size: 8px; margin-top: 7px; color: #a9967a; }
+.customer-angry { border-color: #d8a18b; background: #fff8f0; }
+.customer-angry .customer-speech { color: #b44e3b; font-weight: 800; }
+.customer-angry .customer-dialogue small { color: #c16852; }
+.customer-angry .wait-bar i { background: #bb604e; }
+.customer-angry .wait-label strong { color: #b45d48; }
+.customer-impatient .wait-bar i { background: #d38c42; }
+.customer-impatient .wait-label strong { color: #c77a36; }
+.customer-happy .customer-speech { color: #738254; }
+@keyframes customer-breathe { 50% { transform: translateY(-2px); } }
+@keyframes impatient-bob { 50% { transform: translateY(-3px) rotate(-2deg); } }
+@keyframes angry-shake { 25% { transform: translateX(-3px) rotate(-3deg); } 75% { transform: translateX(3px) rotate(3deg); } }
+@keyframes happy-hop { 50% { transform: translateY(-6px) rotate(3deg); } }
+@media (max-width: 1000px) and (min-width: 741px) {
+  .all-sauces { padding: 22px 18px; }.customer-portrait { width: 67px; height: 67px; }
+  .customer .customer-speech { font-size: 10px; }.sauce-choice strong { font-size: 10px; }
+}
+@media (max-width: 740px) {
+  .all-sauces { padding: 20px 14px; }.sauce-heading h3 { font-size: 16px; }.sauce-heading p { font-size: 10px; }
+  .sauce-choices { gap: 7px; margin: 13px 0 20px; }.sauce-choice { min-height: 87px; padding: 10px 3px 9px; }
+  .sauce-choice[aria-pressed="true"] { padding: 9px 2px 8px; }.sauce-choice strong { font-size: 10px; }.sauce-choice small { font-size: 8px; }
+  .sauce-mini-bowl,.plain-mini-plate { width: 45px; height: 26px; }.sauce-workspace { gap: 10px; }.sauce-copy h4 { font-size: 11px; }
+  .sauce-notice { font-size: 10px; }.station-serve { font-size: 9px; }.sauce-lock-note { font-size: 8px; }
+  .reference-customer { float: none; width: 100%; display: flex; align-items: center; margin: 13px 0 15px; gap: 12px; }
+  .customer-portrait { width: 72px; height: 72px; }.customer .customer-dialogue strong { font-size: 12px; }
+  .customer .customer-speech { font-size: 11px; }.customer .customer-dialogue small { font-size: 8px; }
+  .order-food { width: 100%; }.order-food .chicken-photo { width: 51px; }.order-food strong { font-size: 11px; }.order-food small { font-size: 9px; }
+}
+@media (max-width: 360px) {
+  .all-sauces { padding: 18px 10px; }.sauce-choice strong { font-size: 9px; }.sauce-choice small { font-size: 7px; }
+  .customer-portrait { width: 66px; height: 66px; }.customer .customer-speech { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .customer-portrait { animation: none; } }

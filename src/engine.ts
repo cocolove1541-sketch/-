@@ -18,9 +18,14 @@ export function grade(c:Cook):'burnt'|'raw'|'soggy'|'perfect'|'good'{
 export const reward=(g:ReturnType<typeof grade>,combo:number,recipe:number)=>g==='perfect'?Math.round((180+recipe*40)*(1+Math.min(combo,10)*.1)):g==='good'?120+recipe*30:g==='soggy'?40:0;
 
 // Sauce is a finishing step: it cannot make raw or burnt chicken safe to sell.
-export function assessDish(c: Cook, recipe: number, coverage: number): ReturnType<typeof grade> | 'unsauced' {
+export function assessDish(c: Cook, recipe: number, coverage: number, appliedSauce: number = recipe): ReturnType<typeof grade> | 'unsauced' | 'wrong-sauce' {
  const doneness = grade(c);
  if (doneness === 'raw' || doneness === 'burnt') return doneness;
- if (recipe > 0 && coverage < 1) return 'unsauced';
+ if ((appliedSauce > 0 && coverage < 1) || (recipe > 0 && (appliedSauce === 0 || coverage < 1))) return 'unsauced';
+ if (appliedSauce !== recipe) return 'wrong-sauce';
  return doneness;
+}
+
+export function customerForOrder(order: number): 0 | 1 | 2 {
+ return ((order - 1) % 3 + 3) % 3 as 0 | 1 | 2;
 }
