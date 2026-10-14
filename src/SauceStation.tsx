@@ -1,7 +1,7 @@
 import { useRef, type CSSProperties } from 'react';
 import { Chicken, sauceColors } from './Chicken';
 
-export const sauceNames = ['', '달콤한 양념', '간장 소스', '매콤한 양념'];
+export const sauceNames = ['', '달콤한 양념', '간장 소스'];
 
 export function SauceStation({ recipe, progress, coverage, active, finished, onMix }: {
   recipe: number; progress: number; coverage: number; active: boolean; finished: boolean;
@@ -14,7 +14,7 @@ export function SauceStation({ recipe, progress, coverage, active, finished, onM
       <h3>{sauceNames[recipe]} 버무리기</h3>
       <p>{active ? '치킨 위를 쓱쓱 문질러 소스를 입혀요.' : finished ? '윤기 나는 소스와 깨까지! 이제 제공하세요.' : '치킨을 기름에서 건진 후 소스를 입혀요.'}</p>
       <div className="sauce-meter" role="progressbar" aria-label="양념 입힌 정도" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(coverage*100)}><i style={{width:`${coverage*100}%`}}/></div>
-      <button className="mix-button" disabled={!active} onClick={()=>onMix(1/3)}>{finished ? '양념 완성 ✓' : `소스 버무리기 · ${Math.round(coverage*100)}%`}</button>
+      <button className="mix-button" disabled={!active} onClick={()=>onMix(1/3)}>{finished ? '소스 완성 ✓' : `소스 버무리기 · ${Math.round(coverage*100)}%`}</button>
     </div>
     <div className={`sauce-bowl ${active ? 'interactive' : ''}`} data-testid="sauce-bowl" onPointerDown={e=>{
       if (!active) return;

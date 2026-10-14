@@ -1,5 +1,14 @@
 export type Cook = {inside:number; crust:number; low:number; elapsed:number};
 export const fresh = ():Cook=>({inside:0,crust:0,low:0,elapsed:0});
+
+export const recipes = ['오리지널 후라이드', '달콤한 양념치킨', '깊은 풍미 간장치킨'] as const;
+export const recipeLabels = ['후라이드', '양념치킨', '간장치킨'] as const;
+export type Recipe = 0 | 1 | 2;
+
+// Every customer can order any of the three recipes from the very first visit.
+export function randomRecipe(random: () => number = Math.random): Recipe {
+ return Math.min(2, Math.max(0, Math.floor(random() * recipes.length))) as Recipe;
+}
 export function cook(c:Cook,temp:number,dt:number,size=1,oil=0):Cook {
  return {inside:c.inside+dt/ (10*size)*Math.min(1.3,temp/175),crust:c.crust+dt/(12*size)*Math.pow(temp/175,4),low:c.low+(temp<170?dt:0),elapsed:c.elapsed+dt};
 }

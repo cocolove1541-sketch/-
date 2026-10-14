@@ -1,27 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { cook, fresh, reward, assessDish, type Cook } from './engine';
+import { cook, fresh, reward, assessDish, recipes, recipeLabels, randomRecipe, type Cook } from './engine';
 import { Chicken, Tongs } from './Chicken';
 import { OilParticles, LiftedChicken } from './Fryer';
 import { SauceStation, sauceNames } from './SauceStation';
 import './style.css';
 import './kitchen.css';
 
-type Save = { money:number; sales:number; best:number; fryer:number; oil:number; recipes:number; date:string; score:number };
+type Save = { money:number; sales:number; best:number; fryer:number; oil:number; date:string; score:number };
 type Phase = 'raw' | 'flour' | 'coated' | 'frying' | 'saucing' | 'plated' | 'done' | 'failed';
-const base:Save = {money:0,sales:0,best:0,fryer:0,oil:0,recipes:2,date:new Date().toLocaleDateString(),score:0};
+const base:Save = {money:0,sales:0,best:0,fryer:0,oil:0,date:new Date().toLocaleDateString(),score:0};
 function saved():Save {
   try {
     const v = {...base,...JSON.parse(localStorage.getItem('chicken-king') || '{}')};
-    // Existing players keep their wallet and equipment; sweet sauce is now a starter recipe.
-    v.recipes = Math.max(2, Math.min(4, v.recipes));
+    // Recipe unlocks have retired; keep the wallet, records and equipment.
+    delete v.recipes;
     return v.date === base.date ? v : {...v,sales:0,date:base.date};
   } catch { return base; }
 }
 function readHelp() { try { return !!localStorage.getItem('chicken-help'); } catch { return false; } }
 function store(key:string,value:string) { try { localStorage.setItem(key,value); } catch {} }
-const recipes = ['오리지널 후라이드','달콤한 양념치킨','깊은 풍미 간장치킨','불꽃 매운 치킨'];
-const recipeLabels = ['후라이드','양념치킨','간장치킨','매운 치킨'];
+const customerQuotes = ['“후라이드, 바삭하게 부탁드려요!”','“달콤한 양념 듬뿍 부탁드려요!”','“간장 소스에 맛있게 버무려 주세요!”'];
 
 function App() {
   const [save,setSave] = useState(saved);
@@ -30,7 +29,8 @@ function App() {
   const [temp,setTemp] = useState(175);
   const [left,setLeft] = useState(30 + save.fryer*3);
   const [combo,setCombo] = useState(0);
-  const [recipe,setRecipe] = useState(0);
+  const [recipe,setRecipe] = useState(randomRecipe);
+  const [orderNumber,setOrderNumber] = useState(1);
   const [sound,setSound] = useState(true);
   const [shop,setShop] = useState(false);
   const [help,setHelp] = useState(!readHelp());
@@ -136,11 +136,11 @@ function App() {
       g==='burnt'?'앗, 타버렸어요! 판매할 수 없어요.':`조금 눅눅해요. 170~180℃를 유지해요. +₩${money}`);
     sfx(ok?'win':'pop');
   }
-  function startOrder(index:number) {
-    setC(fresh());setPhase('raw');setLeft(30+save.fryer*3);setRecipe(index);setResult('');
+  function next() {
+    setC(fresh());setPhase('raw');setLeft(30+save.fryer*3);setRecipe(randomRecipe());setResult('');
+    setOrderNumber(v=>v+1);
     setSauce(0);sauceValue.current=0;setDrag(null);setLifting(false);setSplash(false);
   }
-  function next() {startOrder(Math.floor(Math.random()*save.recipes));}
   function startDrag(e:React.PointerEvent) {
     e.stopPropagation();e.currentTarget.setPointerCapture(e.pointerId);setDrag({x:e.clientX,y:e.clientY});
   }
@@ -155,9 +155,8 @@ function App() {
     if(hit(plate.current))lift();
     setDrag(null);
   }
-  const steps=recipe>0?['튀김옷','기름에 퐁당','양념 버무리기','손님에게 제공']:['튀김옷 입히기','기름에 퐁당','접시에 담아 제공'];
+  const steps=recipe>0?['튀김옷','기름에 퐁당','소스 버무리기','손님에게 제공']:['튀김옷 입히기','기름에 퐁당','접시에 담아 제공'];
   const stage=['raw','flour','coated'].includes(phase)?0:phase==='frying'?1:phase==='saucing'?2:steps.length-1;
-  const canChoose=['raw','done','failed'].includes(phase);
   const canServe=phase==='plated';
   const displayChicken=['plated','saucing','done','failed'].includes(phase)&&c.elapsed>0;
   const readyToLift=c.inside>=1 && c.crust>=.88 && c.crust<=1.15;
@@ -190,7 +189,7 @@ function App() {
               <div className="pot-brand" aria-hidden="true">CRISPY KING</div>
             </div>
             {lifting&&<LiftedChicken progress={c.crust}/>}
-            <div className="scene-caption">{phase==='frying'?'기름 속에 푹 잠겨 지글지글… 노릇해지는 중!':phase==='coated'?'치킨을 둥근 기름솥 한가운데로 드래그해요.':phase==='saucing'?'바삭하게 튀겼다면, 이제 달콤한 양념을 입혀요.':'황금빛 기름에 퐁당! 오늘도 맛있는 한 조각.'}</div>
+            <div className="scene-caption">{phase==='frying'?'기름 속에 푹 잠겨 지글지글… 노릇해지는 중!':phase==='coated'?'치킨을 둥근 기름솥 한가운데로 드래그해요.':phase==='saucing'?`바삭하게 튀겼다면, 이제 ${sauceNames[recipe]}를 입혀요.`:'황금빛 기름에 퐁당! 오늘도 맛있는 한 조각.'}</div>
             {result&&<div className="result" role="status"><strong>{result}</strong><button onClick={next}>다음 주문 →</button></div>}
           </div>
           <div className="temp-panel"><div><span>기름 온도</span><strong>{temp}<small>℃</small></strong></div><div className="slider-wrap"><div className="slider-labels"><span>낮음 · 눅눅</span><span className="green">170–180℃ · 바삭!</span><span>높음 · 주의</span></div><input aria-label="기름 온도" type="range" min="145" max="215" value={temp} onChange={e=>setTemp(+e.target.value)}/><div className="slider-labels"><span>145℃</span><span>180℃</span><span>215℃</span></div></div><span className={`temp-status ${temp>=170&&temp<=180?'ideal':''}`}>{temp>=170&&temp<=180?'● 딱 좋은 온도':'● 온도를 조절해요'}</span></div>
@@ -198,18 +197,18 @@ function App() {
             <button className="prep-item" onClick={()=>{if(phase==='raw'){setPhase('flour');sfx();}}}><Chicken raw/><strong>신선한 닭</strong><small>{phase==='raw'?'클릭해서 밀가루 입히기':'매일 신선하게!'}</small></button>
             <button className={`prep-item flour ${phase==='flour'?'selected':''}`} onClick={()=>{if(phase==='flour'){setPhase('coated');sfx();}}}><div className="bowl"><span/></div><strong>바삭 튀김옷</strong><small>{phase==='flour'?'클릭해서 튀김옷 완성':'밀가루 + 비밀 레시피'}</small></button>
             <button className="prep-item tongs" onClick={()=>phase==='coated'?dropOil():lift()}><Tongs/><strong>집게</strong><small>{phase==='frying'?'치킨을 건져 올려요':'치킨을 잡고 옮겨요'}</small></button>
-            <button ref={plate} className="prep-item plate" disabled={phase==='saucing'} onClick={canServe?serve:lift}><div className="plate-art">{displayChicken&&<Chicken progress={c.crust} sauce={sauce} recipe={recipe}/>}</div><strong>{canServe?'손님에게 제공 →':phase==='saucing'?'양념을 먼저 입혀요':'완성 접시'}</strong><small>{phase==='saucing'?'아래 조리대에서 쓱쓱!':'맛있게 담아주세요'}</small></button>
+            <button ref={plate} className="prep-item plate" disabled={phase==='saucing'} onClick={canServe?serve:lift}><div className="plate-art">{displayChicken&&<Chicken progress={c.crust} sauce={sauce} recipe={recipe}/>}</div><strong>{canServe?'손님에게 제공 →':phase==='saucing'?'소스를 먼저 입혀요':'완성 접시'}</strong><small>{phase==='saucing'?'아래 조리대에서 쓱쓱!':'맛있게 담아주세요'}</small></button>
             {phase==='coated'&&<div className="ready-chicken" onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={()=>setDrag(null)}><Chicken/><span>드래그해서 기름에 퐁당 ↗</span></div>}
           </div>
           {recipe>0&&<div ref={sauceStation}><SauceStation recipe={recipe} progress={c.crust} coverage={sauce} active={phase==='saucing'} finished={sauce>=1} onMix={mixSauce}/></div>}
         </section>
         <aside>
           <div className="order-card">
-            <div className="card-label">오늘의 주문 <span>ORDER #{1+combo}</span></div>
-            <div className="recipe-picker" role="group" aria-label="만들 치킨 선택">{recipeLabels.map((name,i)=><button key={name} disabled={!canChoose||i>=save.recipes} aria-pressed={recipe===i} onClick={()=>startOrder(i)}>{name}{i>=save.recipes&&<small>해금</small>}</button>)}</div>
-            <div className="recipe-note">{canChoose?'조리 전에 만들 치킨을 선택할 수 있어요.':recipe>0?'튀긴 후 소스를 직접 버무려 주세요.':'속까지 익혀 따뜻하게 제공해 주세요.'}</div>
-            <div className="customer"><div className="avatar"><div className="hair"/><div className="face">•ᴗ•</div><div className="shirt"/></div><div><strong>배고픈 단골손님</strong><span>{recipe>0?'“양념 듬뿍 부탁드려요!”':'“바삭하게 부탁드려요!”'}</span></div></div>
-            <div className="order-food"><Chicken progress={1} sauce={recipe>0?1:0} recipe={recipe}/><div><strong>{recipes[recipe]}</strong><small>{recipe>0?'바삭한 치킨 + 윤기 나는 소스':'갓 튀긴 치킨 1조각'}</small></div><b>×1</b></div>
+            <div className="card-label">손님 주문 <span>ORDER #{orderNumber}</span></div>
+            <div className="order-assigned"><span className="assigned-dot"/> 손님이 고른 메뉴를 만들어 주세요</div>
+            <div className="customer"><div className="avatar"><div className="hair"/><div className="face">•ᴗ•</div><div className="shirt"/></div><div><strong>배고픈 단골손님</strong><span>{customerQuotes[recipe]}</span></div></div>
+            <div className="order-food" data-recipe={recipe}><Chicken progress={1} sauce={recipe>0?1:0} recipe={recipe}/><div><strong>{recipes[recipe]}</strong><small>{recipe===2?'달콤짭짤 간장 소스':recipe===1?'달콤한 양념 소스':'갓 튀긴 치킨 1조각'}</small></div><b>×1</b></div>
+            <div className="order-instruction">{recipe>0?`기름에서 튀긴 후 ${sauceNames[recipe]}를 입혀주세요.`:'소스 없이 바삭한 후라이드로 제공하세요.'}</div>
             <div className="wait-label"><span>손님 대기 시간</span><strong>{Math.ceil(left)}<small>초</small></strong></div><div className="wait-bar"><i style={{width:`${left/(30+save.fryer*3)*100}%`}}/></div><p>따뜻할 때 드리면 더 좋아해요.</p>
           </div>
           <div className="cook-card">
@@ -219,18 +218,18 @@ function App() {
             <label>겉 바삭함 <b>{c.crust>=1.45?'탔어요':c.crust>=.88?'바삭해요':'아직 부드러워요'}</b></label><div className="meter crust"><i style={{width:`${Math.min(100,c.crust/1.45*100)}%`}}/><span/></div>
             {recipe>0&&<><label>{sauceNames[recipe]} <b>{Math.round(sauce*100)}%</b></label><div className="meter sauce"><i style={{width:`${sauce*100}%`}}/></div></>}
             <div className="timing">{phase==='saucing'?'조리대에서 소스를 묻히면 제공할 수 있어요.':phase==='plated'?'준비 끝! 손님에게 맛있게 제공하세요.':readyToLift?'지금이에요! 치킨을 건져주세요 ✧':'속이 다 익고, 황금빛이 될 때까지!'}</div>
-            <button className="lift-button" disabled={phase!=='frying'&&!canServe} onClick={canServe?serve:lift}>{canServe?'치킨 제공하기 →':phase==='saucing'?'양념 버무리기 중…':'집게로 건져 올리기 ↑'}</button>
+            <button className="lift-button" disabled={phase!=='frying'&&!canServe} onClick={canServe?serve:lift}>{canServe?'치킨 제공하기 →':phase==='saucing'?'소스 버무리기 중…':'집게로 건져 올리기 ↑'}</button>
           </div>
-          <div className="tip"><span>✦</span><div><strong>{recipe>0?'달콤하게, 바삭하게':'바삭한 한 끗'}</strong><p>{recipe>0?'먼저 기름에서 속까지 익혀 건져 올리고, 소스 조리대에서 치킨을 쓱쓱 문질러 주세요. 버튼으로도 버무릴 수 있어요.':'170~180℃를 유지하고, 속이 완전히 익었을 때 건져 올리세요. 완벽한 치킨은 추가 보상!'}</p></div></div>
+          <div className="tip"><span>✦</span><div><strong>{recipe===2?'달콤짭짤, 바삭하게':recipe===1?'달콤하게, 바삭하게':'바삭한 한 끗'}</strong><p>{recipe>0?'먼저 기름에서 속까지 익혀 건져 올리고, 소스 조리대에서 치킨을 쓱쓱 문질러 주세요. 버튼으로도 버무릴 수 있어요.':'170~180℃를 유지하고, 속이 완전히 익었을 때 건져 올리세요. 완벽한 치킨은 추가 보상!'}</p></div></div>
         </aside>
       </div>
       <footer><span>정성을 담아, 한 조각씩.</span><span>직접 만든 주방 · CHICKEN KING</span></footer>
     </main>
     {drag&&<div className="drag-chicken" style={{left:drag.x,top:drag.y}}><Tongs/><Chicken progress={c.crust}/></div>}
-    {help&&<div className="overlay"><div className="modal"><div className="eyebrow">WELCOME TO YOUR LITTLE KITCHEN</div><h2>첫 치킨, 함께 튀겨볼까요?</h2><Chicken progress={1}/><p>① 후라이드 또는 양념치킨 주문을 골라요.<br/>② 닭 → 튀김옷을 누른 뒤 둥근 기름솥에 퐁당!<br/>③ 175℃에서 12~13초, 속이 100% 익으면 건져요.<br/>④ 양념치킨은 소스 조리대에서 쓱쓱 버무려요.<br/>⑤ 완성 접시를 눌러 손님에게 제공하세요.</p><button className="primary" onClick={()=>{setHelp(false);store('chicken-help','1');sfx();}}>좋아요, 영업 시작!</button></div></div>}
-    {shop&&<div className="overlay"><div className="modal"><button className="close" aria-label="업그레이드 닫기" onClick={()=>setShop(false)}>×</button><div className="eyebrow">A LITTLE BETTER EVERY DAY</div><h2>내 가게 업그레이드</h2><p>내 지갑 ₩{save.money}</p>{(['fryer','oil','recipes'] as const).map((key,i)=>{
-      const level=save[key],cost=key==='recipes'?300*level:200*(level+1),max=key==='recipes'?4:3;
-      return <button className="upgrade" key={key} disabled={save.money<cost||level>=max} onClick={()=>setSave(v=>({...v,money:v.money-cost,[key]:level+1}))}><span>{['기름솥 · 대기 시간 +3초','좋은 기름 · 보너스 매출 +10%','새 레시피 · 간장·매운 치킨 해금'][i]}<small>레벨 {level} / {max}</small></span><b>{level>=max?'MAX':`₩${cost}`}</b></button>;
+    {help&&<div className="overlay"><div className="modal"><div className="eyebrow">WELCOME TO YOUR LITTLE KITCHEN</div><h2>손님의 주문을 받아볼까요?</h2><Chicken progress={1}/><p>① 손님이 후라이드·양념·간장 중 하나를 주문해요.<br/>② 닭 → 튀김옷을 누른 뒤 둥근 기름솥에 퐁당!<br/>③ 175℃에서 12~14초, 속이 100% 익으면 건져요.<br/>④ 양념·간장 주문은 해당 소스를 쓱쓱 입혀요.<br/>⑤ 완성 접시를 눌러 손님에게 제공하세요.</p><button className="primary" onClick={()=>{setHelp(false);store('chicken-help','1');sfx();}}>좋아요, 영업 시작!</button></div></div>}
+    {shop&&<div className="overlay"><div className="modal"><button className="close" aria-label="업그레이드 닫기" onClick={()=>setShop(false)}>×</button><div className="eyebrow">A LITTLE BETTER EVERY DAY</div><h2>내 가게 업그레이드</h2><p>내 지갑 ₩{save.money}</p><p className="shop-menu-note">후라이드·양념·간장, 모든 메뉴는 처음부터 판매해요.</p>{(['fryer','oil'] as const).map((key,i)=>{
+      const level=save[key],cost=200*(level+1),max=3;
+      return <button className="upgrade" key={key} disabled={save.money<cost||level>=max} onClick={()=>setSave(v=>({...v,money:v.money-cost,[key]:level+1}))}><span>{['기름솥 · 대기 시간 +3초','좋은 기름 · 보너스 매출 +10%'][i]}<small>레벨 {level} / {max}</small></span><b>{level>=max?'MAX':`₩${cost}`}</b></button>;
     })}<button className="primary" onClick={()=>setShop(false)}>주방으로 돌아가기</button></div></div>}
   </div>;
 }

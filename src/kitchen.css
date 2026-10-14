@@ -38,13 +38,24 @@
 .ready-chicken span { font-size: 8px; padding: 7px; box-shadow: 0 3px 10px #b88b2720; }
 .drag-chicken .tongs-svg { position: absolute; top: -61px; left: 36px; width: 95px; height: 95px; transform: rotate(37deg); }
 .chicken-glaze { transition: opacity .16s; }
-.recipe-picker { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 16px; }
-.recipe-picker button { border: 1px solid #e8dcc8; border-radius: 7px; padding: 9px 6px; background: #fffaf0; font-size: 10px; transition: background .2s, border-color .2s; }
-.recipe-picker button[aria-pressed="true"] { color: #9b5029; border-color: #dfa760; background: #fae6c6; font-weight: 800; }
-.recipe-picker button small { font-size: 7px; margin-left: 5px; }
-.recipe-picker button:disabled { opacity: .55; }
-.recipe-picker button[aria-pressed="true"]:disabled { opacity: .9; }
-.recipe-note { font-size: 9px; color: #a99070; margin-top: 9px; }
+.chicken-photo { display: block; position: relative; aspect-ratio: 7 / 5; height: auto; }
+.chicken-photolayer { position: absolute; inset: 0; display: block; background-repeat: no-repeat; background-size: 300% 280%; pointer-events: none; transition: opacity .1s; }
+.chicken-fallback { display: block; width: 100%; height: 100%; }
+.prep-item > .chicken-photo { height: auto; margin: 5px 0; }
+.plate-art .chicken-photo { height: auto; margin: 0; }
+.prep-item strong { margin-top: auto; padding-top: 6px; }
+.order-food .chicken-photo { flex-shrink: 0; }
+.order-assigned { display: flex; align-items: center; gap: 6px; margin-top: 13px; padding: 8px 10px; border-radius: 6px; background: #f4eddf; color: #94724f; font-size: 9px; }
+.assigned-dot { width: 5px; height: 5px; border-radius: 50%; background: #c09254; }
+.order-instruction { clear: both; font-size: 9px; line-height: 1.6; color: #a17c50; padding-top: 10px; }
+.shop-menu-note { padding: 9px 12px; border-radius: 8px; background: #f2eddf; }
+
+
+
+
+
+
+
 .four-steps { gap: 23px; }
 .meter.sauce i { background: #c45832; }
 .sauce-station { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 203px; padding: 25px 32px; background: #fff1e1; border-top: 1px solid #e8d5bf; }
@@ -107,8 +118,8 @@
   .ready-chicken { top: -173px; left: 14px; width: 88px; }.ready-chicken span { font-size: 7px; padding: 6px; }
   .prep .tongs-svg { width: 63px; height: 67px; }
   .lifted-chicken { width: 128px; left: calc(50% - 64px); top: 146px; }
-  .recipe-picker { display: flex; gap: 5px; margin-top: 12px; }.recipe-picker button { flex: 1; padding: 9px 3px; font-size: 9px; }.recipe-picker button small { display: block; margin: 3px 0 0; }
-  .recipe-note { font-size: 8px; margin-top: 7px; }
+
+
   .order-food { min-height: 63px; }.order-food strong { font-size: 9px; }.order-food small { font-size: 7px; }
   .sauce-station { min-height: 192px; padding: 20px 14px; gap: 11px; }
   .sauce-copy h3 { font-size: 14px; }.sauce-copy p { font-size: 9px; }.sauce-copy .eyebrow { font-size: 7px; }

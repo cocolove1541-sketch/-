@@ -1,18 +1,61 @@
-import { useId } from 'react';
+import { useEffect, useId, useState, type CSSProperties } from 'react';
+import chickenAtlas from './assets/chicken-atlas.png';
 
-export const sauceColors = ['#d47f22', '#ba351f', '#713b21', '#cf251b'];
+export const sauceColors = ['#d47f22', '#ba351f', '#713b21'];
 
-export function Chicken({ progress = 0, raw = false, sauce = 0, recipe = 1 }: {
+type ChickenProps = {
   progress?: number;
   raw?: boolean;
   sauce?: number;
   recipe?: number;
-}) {
+};
+
+let photoLoaded = false;
+let photoRequest: Promise<boolean> | undefined;
+function loadPhoto() {
+  if (!photoRequest) photoRequest = new Promise<boolean>(resolve => {
+    const img = new Image();
+    img.onload = () => { photoLoaded = true; resolve(true); };
+    img.onerror = () => resolve(false);
+    img.src = chickenAtlas;
+  });
+  return photoRequest;
+}
+
+function sprite(column:number, row:number, opacity=1): CSSProperties {
+  return {
+    backgroundImage: `url(${chickenAtlas})`,
+    backgroundPosition: `${column*50}% ${row===0?11.111111:88.888889}%`,
+    opacity,
+  };
+}
+
+export function Chicken({progress=0,raw=false,sauce=0,recipe=1}: ChickenProps) {
+  const [ready,setReady] = useState(photoLoaded);
+  useEffect(()=>{
+    let mounted=true;
+    void loadPhoto().then(ok=>{if(mounted)setReady(ok);});
+    return ()=>{mounted=false;};
+  },[]);
+  const golden=Math.min(1,Math.max(0,progress*1.05));
+  const burnt=Math.min(1,Math.max(0,(progress-1.12)/.33));
+  return <span className={`chicken chicken-photo ${ready?'photo-ready':'photo-fallback'}`} aria-hidden="true" data-visual={raw?'raw':progress>=1.45?'burnt':sauce>=1?recipe===2?'soy':'seasoned':progress>.7?'golden':'coated'}>
+    {!ready && <ChickenFallback progress={progress} raw={raw} sauce={sauce} recipe={recipe}/>}
+    {ready && (raw ? <span className="chicken-photolayer" style={sprite(0,0)}/> : <>
+      <span className="chicken-photolayer" style={sprite(1,0)}/>
+      <span className="chicken-photolayer" style={sprite(2,0,golden)}/>
+      <span className="chicken-photolayer chicken-glaze" style={sprite(recipe===2?1:0,1,sauce)}/>
+      <span className="chicken-photolayer" style={sprite(2,1,burnt)}/>
+    </>)}
+  </span>;
+}
+
+function ChickenFallback({ progress = 0, raw = false, sauce = 0, recipe = 1 }: ChickenProps) {
   const id = useId().replace(/:/g, '');
   const body = 'M99 51C106 25 82 9 59 12 30 10 9 27 13 53 13 76 38 87 62 81 84 78 91 69 99 51Z';
   const color = raw ? '#efbba8' : progress >= 1.45 ? '#493023'
     : `hsl(${44 - Math.min(progress, 1.4) * 9} 88% ${80 - Math.min(progress, 1.4) * 27}%)`;
-  return <svg className="chicken" viewBox="0 0 140 100" aria-hidden="true">
+  return <svg className="chicken-fallback" viewBox="0 0 140 100" aria-hidden="true">
     <defs>
       <clipPath id={`body-${id}`}><path d={body}/></clipPath>
       <linearGradient id={`glaze-${id}`} x1="0" y1="0" x2="0.8" y2="1">
